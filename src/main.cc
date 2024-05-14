@@ -1,8 +1,6 @@
 #include "chimera_generated.h"
 #include "flatbuffers/flatbuffer_builder.h"
 
-#include <string>
-
 extern "C" {
     #include <stdio.h>
 }
