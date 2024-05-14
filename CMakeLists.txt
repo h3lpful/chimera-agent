@@ -11,7 +11,7 @@ project(${PACKAGE_NAME} LANGUAGES C CXX)
 if(NOT EXTERNAL_DIR)
     set(EXTERNAL_DIR ${PROJECT_BINARY_DIR}/external)
 endif()
-# include(ExternalProject)
+
 include(${CMAKE_TOOLCHAIN_FILE})
 
 set(INSTALL_DIR ${PROJECT_BINARY_DIR}/dep-install)
@@ -35,47 +35,31 @@ FetchContent_Declare(
 ### FLATBUFFER END ###
 
 FetchContent_MakeAvailable(${FLATBUFFERS})
-# add_subdirectory(${FLATBUFFERS_SRC} ${FLATBUFFERS_BIN} EXCLUDE_FROM_ALL)
-# ExternalProject_Add(
-#     ${FLATBUFFERS}
-#     URL ${FLATBUFFER_URL}
-#     PREFIX ${EXTERNAL_DIR}/${FLATBUFFERS}
-#     DOWNLOAD_EXTRACT_TIMESTAMP true
-#     CMAKE_ARGS 
-#         -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}
-#         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-#         -DEXTERNAL_DIR=${EXTERNAL_DIR}
-#         -DFLATBUFFERS_BUILD_TESTS=OFF
-#         -DFLATBUFFERS_BUILD_FLATC=OFF
-# )
-
 
 file(GLOB CHIMERA_SRC ${CMAKE_SOURCE_DIR}/src/*.cc)
 
 add_executable(${PACKAGE_NAME} ${CHIMERA_SRC})
-target_include_directories(
-    ${PACKAGE_NAME} 
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-    PUBLIC ${TOOLCHAIN_DIR}/${ARCH}/include
-    PUBLIC ${INSTALL_DIR}/include
-    )
+target_include_directories(${PACKAGE_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_include_directories(${PACKAGE_NAME} PRIVATE $<BUILD_INTERFACE:${TOOLCHAIN_DIR}/${ARCH}/include>)
+target_include_directories(${PACKAGE_NAME} PRIVATE $<BUILD_INTERFACE:${INSTALL_DIR}/include>)
+
 target_link_directories(
     ${PACKAGE_NAME} 
-    PUBLIC 
+    PRIVATE 
     ${INSTALL_DIR}/lib
 )
-target_link_libraries(${PACKAGE_NAME} PUBLIC
+target_link_libraries(${PACKAGE_NAME} PRIVATE
     flatbuffers
     )
 # add_dependencies(${PACKAGE_NAME} ${FLATBUFFERS})
 
-target_link_options(${PACKAGE_NAME} PUBLIC "LINKER:--hash-style=sysv")
-target_link_options(${PACKAGE_NAME} PUBLIC "LINKER:--no-eh-frame-hdr")
-target_link_options(${PACKAGE_NAME} PUBLIC "LINKER:--gc-sections")
-target_link_options(${PACKAGE_NAME} PUBLIC "LINKER:--build-id=none")
-target_link_options(${PACKAGE_NAME} PUBLIC "LINKER:--no-export-dynamic")
-target_link_options(${PACKAGE_NAME} PUBLIC "LINKER:-x")
-target_link_options(${PACKAGE_NAME} PUBLIC "LINKER:-X")
+target_link_options(${PACKAGE_NAME} PRIVATE "LINKER:--hash-style=sysv")
+target_link_options(${PACKAGE_NAME} PRIVATE "LINKER:--no-eh-frame-hdr")
+target_link_options(${PACKAGE_NAME} PRIVATE "LINKER:--gc-sections")
+target_link_options(${PACKAGE_NAME} PRIVATE "LINKER:--build-id=none")
+target_link_options(${PACKAGE_NAME} PRIVATE "LINKER:--no-export-dynamic")
+target_link_options(${PACKAGE_NAME} PRIVATE "LINKER:-x")
+target_link_options(${PACKAGE_NAME} PRIVATE "LINKER:-X")
 
 # target_compile_options(${PACKAGE_NAME })
 
